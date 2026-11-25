@@ -11,12 +11,35 @@ def get_user_input():
     Returns:
     type of sensor, number of readings, min value, max value, alert threshold if inputs are valid. Otherwise, returns None.
     """
-    Sensor_type = input("Enter the sensor type (e.g., temperature, humidity, pressure): ")
-    Number_of_readings = int(input("Enter the number of readings you want to input: "))
-    Min_value = float(input("Enter the minimum value for the readings: "))
-    Max_value = float(input("Enter the maximum value for the readings: "))
-    Alert_threshold = float(input("Enter the alert threshold value: "))
-    
+
+    while True:
+        try:
+            Sensor_type = input("Enter the sensor type (e.g., temperature, humidity, pressure): ")
+            if not Sensor_type.isalpha():
+                print("Error: sensor type must be text only.")
+                continue
+            Number_of_readings = int(input("Enter the number of readings you want to input: "))            
+            Min_value = float(input("Enter the minimum value for the readings: "))
+            Max_value = float(input("Enter the maximum value for the readings: "))
+            Alert_threshold = float(input("Enter the alert threshold value: "))
+            
+        except ValueError:
+            print("Error: number of readings, minimum, maximum and alert threshold must be numeric.")
+            continue
+
+        if Number_of_readings <= 0:
+            print("Number of readings must be a positive number.")
+            continue
+        if Min_value >= Max_value:
+            print("Minimum value must be less than maximum value.")
+            continue
+        if Alert_threshold < Min_value or Alert_threshold > Max_value:
+            print("Alert threshold must be within the range of minimum and maximum values.")
+            continue
+
+        return Sensor_type, Number_of_readings, Min_value, Max_value, Alert_threshold
+
+            
     if Number_of_readings <= 0:
         print("Number of readings must be a positive number.")
         return None
@@ -137,15 +160,25 @@ def main():
     Main function to run the program.It asks the user if they want to load readings from a file or generate new readings. It then calculates statistics and plots the readings and histogram.
 
     """
-    if input("Do you want to load readings from a file? (yes/no): ").strip().lower() == "yes":
-        filename = input("Enter the filename to load readings from: ")
-        readings, Alert_threshold, Sensor_type = load_readings(filename)
+    while True:
+        load_from_file = input("Do you want to load readings from a file? (yes/no): ").strip().lower()
+        if load_from_file not in ("yes", "no"):
+            print("Please enter 'yes' or 'no'.")
+            continue
 
-    else:
-        values = get_user_input()
-        Sensor_type, Number_of_readings, Min_value, Max_value, Alert_threshold = values
-        readings = generate_readings(Number_of_readings, Min_value, Max_value)
-        save_readings("readings.csv", readings, Sensor_type, Min_value, Max_value, Alert_threshold)
+        if load_from_file == "yes":
+            filename = input("Enter the filename to load readings from: ")
+            try:
+                readings, Alert_threshold, Sensor_type = load_readings(filename)
+            except FileNotFoundError:
+                print(f"Error: The file '{filename}' was not found.")
+                continue
+        else:
+            values = get_user_input()
+            Sensor_type, Number_of_readings, Min_value, Max_value, Alert_threshold = values
+            readings = generate_readings(Number_of_readings, Min_value, Max_value)
+            save_readings("readings.csv", readings, Sensor_type, Min_value, Max_value, Alert_threshold)
+        break
 
     calculate_statistics(readings, Alert_threshold)
     sample_number = list(range(1, len(readings) + 1))
