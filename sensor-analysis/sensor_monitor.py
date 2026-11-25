@@ -39,19 +39,6 @@ def get_user_input():
 
         return Sensor_type, Number_of_readings, Min_value, Max_value, Alert_threshold
 
-            
-    if Number_of_readings <= 0:
-        print("Number of readings must be a positive number.")
-        return None
-    elif Min_value >= Max_value:
-        print("Minimum value must be less than maximum value.")
-        return None
-    elif Alert_threshold < Min_value or Alert_threshold > Max_value:
-        print("Alert threshold must be within the range of minimum and maximum values.")
-        return None
-    else:
-        return Sensor_type, Number_of_readings, Min_value, Max_value, Alert_threshold
-
 
 def generate_readings(Number_of_readings, Min_value, Max_value):
     """
